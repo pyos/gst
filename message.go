@@ -7,8 +7,8 @@ package gst
 import "C"
 
 import (
-	"unsafe"
 	"github.com/ziutek/glib"
+	"unsafe"
 )
 
 type MessageType C.GstMessageType
@@ -40,7 +40,7 @@ const (
 	MESSAGE_REQUEST_STATE    = MessageType(C.GST_MESSAGE_REQUEST_STATE)
 	MESSAGE_STEP_START       = MessageType(C.GST_MESSAGE_STEP_START)
 	MESSAGE_QOS              = MessageType(C.GST_MESSAGE_QOS)
-	//MESSAGE_PROGRESS         = MessageType(C.GST_MESSAGE_PROGRESS)
+	MESSAGE_PROGRESS         = MessageType(C.GST_MESSAGE_PROGRESS)
 	MESSAGE_ANY              = MessageType(C.GST_MESSAGE_ANY)
 )
 
@@ -142,17 +142,24 @@ func (m *Message) GetSrc() *GstObj {
 	return src
 }
 
-func (m *Message) ParseError() (err *glib.Error, debug string) {
+func (m *Message) ParseError() (err Error, debug string) {
 	var d *C.gchar
-	var	e, ret_e *C.GError
+	var e *C.GError
 
 	C.gst_message_parse_error(m.g(), &e, &d)
 	defer C.g_error_free(unsafe.Pointer(e))
 	defer C.g_free(unsafe.Pointer(d))
 
 	debug = C.GoString((*C.char)(d))
-	ret_e = new(C.GError)
-	*ret_e = *e
-	err = (*glib.Error)(unsafe.Pointer(ret_e))
+	err = Error{int(e.code), C.GoString((*C.char)(e.message))}
 	return
+}
+
+type Error struct {
+	Code    int
+	Message string
+}
+
+func (e *Error) Error() string {
+	return e.Message
 }
