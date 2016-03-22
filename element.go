@@ -139,6 +139,10 @@ func (e *Element) GetStaticPad(name string) *Pad {
 	return p
 }
 
+func (e *Element) RemovePad(p *Pad) {
+	C.gst_element_remove_pad(e.g(), p.g())
+}
+
 func (e *Element) GetBus() *Bus {
 	bus := C.gst_element_get_bus(e.g())
 	if bus == nil {

@@ -91,6 +91,14 @@ func (p *Pad) GetCurrentCaps() *Caps {
 	return (*Caps)(C.gst_pad_get_current_caps(p.g()))
 }
 
+func (p *Pad) SetActive(state bool) {
+	stateInt := 0
+	if state {
+		stateInt = 1
+	}
+	C.gst_pad_set_active(p.g(), C.gboolean(stateInt))
+}
+
 type GhostPad struct {
 	Pad
 }
