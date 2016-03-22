@@ -11,8 +11,8 @@ int capsRefCount(GstCaps *c) {
 import "C"
 
 import (
-	"unsafe"
 	"github.com/ziutek/glib"
+	"unsafe"
 )
 
 type Caps C.GstCaps
@@ -35,6 +35,11 @@ func (c *Caps) RefCount() int {
 
 func (c *Caps) AppendStructure(media_type string, fields glib.Params) {
 	C.gst_caps_append_structure(c.g(), makeGstStructure(media_type, fields))
+}
+
+func (c *Caps) GetStructure(i int) (string, glib.Params) {
+	name, fields := parseGstStructure(C.gst_caps_get_structure(c.g(), C.guint(i)))
+	return name, fields
 }
 
 func (c *Caps) GetSize() int {
@@ -66,4 +71,3 @@ func CapsFromString(s string) *Caps {
 	defer C.free(unsafe.Pointer(cs))
 	return (*Caps)(C.gst_caps_from_string(cs))
 }
-
